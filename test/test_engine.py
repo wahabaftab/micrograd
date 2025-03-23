@@ -1,12 +1,12 @@
 import torch
-from micrograd_wahab.engine import Value
+from micrograd.engine import Value
 
 
 def test_sanity_check():
 
     x = Value(-4.0)
     z = 2 * x + 2 + x
-    q = z + z * x
+    q = z.relu() + z * x
     j = (z * z).relu()
     y = j + q + q * x
     y.backprop(Value(h),y.grad)
@@ -15,7 +15,7 @@ def test_sanity_check():
     x = torch.Tensor([-4.0]).double()
     x.requires_grad = True
     z = 2 * x + 2 + x
-    q = z + z * x
+    q = z.relu() + z * x
     j = (z * z).relu()
     y = j + q + q * x
     y.backward()
