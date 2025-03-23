@@ -1,94 +1,154 @@
-
 class Value:
-    """ stores a single scalar value and its gradient """
 
-    def __init__(self, data, _children=(), _op=''):
-        self.data = data
-        self.grad = 0
-        # internal variables used for autograd graph construction
-        self._backward = lambda: None
-        self._prev = set(_children)
-        self._op = _op # the op that produced this node, for graphviz / debugging / etc
+  def __init__(self, data, children=(), op="",label=''):
+    self.data = data
+    self.grad= 0
+    self.prev = (children)
+    self.operator= op
+    self.label=label
+    self.parent = set()  # Track which parents contributed to grad
+    self.grad_contributions = {}  # Track gradients per parent
+  def __repr__(self):
+    return f"Value(data={self.data})"
 
-    def __add__(self, other):
-        other = other if isinstance(other, Value) else Value(other)
-        out = Value(self.data + other.data, (self, other), '+')
+  def __add__(self, other):
+    other = other if isinstance(other, Value) else Value(other)
+    return Value(self.data + other.data , (self , other), "+")
 
-        def _backward():
-            self.grad += out.grad
-            other.grad += out.grad
-        out._backward = _backward
+  def __mul__(self, other):
+    other = other if isinstance(other, Value) else Value(other)
+    return Value(self.data * other.data, (self, other), "*")
 
-        return out
+  def __rmul__(self,other):
+    return self.__mul__(other)
 
-    def __mul__(self, other):
-        other = other if isinstance(other, Value) else Value(other)
-        out = Value(self.data * other.data, (self, other), '*')
+  def __radd__(self,other):
+    return self.__add__(other)
 
-        def _backward():
-            self.grad += other.data * out.grad
-            other.grad += self.data * out.grad
-        out._backward = _backward
+  def __pow__(self,other):
+    assert isinstance(other, (int,float))
+    return Value(self.data ** other, (self,), "**"+str(other))
 
-        return out
+  def __truediv__(self, other):
+    return self * other**-1
 
-    def __pow__(self, other):
-        assert isinstance(other, (int, float)), "only supporting int/float powers for now"
-        out = Value(self.data**other, (self,), f'**{other}')
+  def __rtruediv__(self, other): # other / self
+      return other * self**-1
 
-        def _backward():
-            self.grad += (other * self.data**(other-1)) * out.grad
-        out._backward = _backward
+  def __neg__(self):
+    return self * -1
 
-        return out
+  def __sub__(self, other):
+    return self + (-other)
 
-    def relu(self):
-        out = Value(0 if self.data < 0 else self.data, (self,), 'ReLU')
+  def __rsub__(self,other):
+    return self.__sub__(other)
 
-        def _backward():
-            self.grad += (out.data > 0) * out.grad
-        out._backward = _backward
+  def tanh(self):
+    x=self.data
+    t=(math.exp(2*x)-1)/(math.exp(2*x)+1)
+    return Value(t, (self,), "tanh")
 
-        return out
+  def exp(self):
+    return Value(math.exp(self.data), (self,), "exp")
 
-    def backward(self):
 
-        # topological order all of the children in the graph
-        topo = []
-        visited = set()
-        def build_topo(v):
-            if v not in visited:
-                visited.add(v)
-                for child in v._prev:
-                    build_topo(child)
-                topo.append(v)
-        build_topo(self)
+  def relu(self):
+      out = Value(0 if self.data < 0 else self.data, (self,), 'ReLU')
 
-        # go one variable at a time and apply the chain rule to get its gradient
-        self.grad = 1
-        for v in reversed(topo):
-            v._backward()
+      return out
 
-    def __neg__(self): # -self
-        return self * -1
+  def backprop(self, other,prev_der, first_recursion=True):
+    if first_recursion:
+      self.grad=1
+      prev_der=self.grad
+    h=other.data
+    if not self.prev:
+      return
+    pow_operator=''
+    pow_value=0
+    if '**' in self.operator:
+      pow_operator = self.operator[:2]  # First two characters are '**'
+      pow_value = int(self.operator[2:])  # The remaining part is the integer
 
-    def __radd__(self, other): # other + self
-        return self + other
 
-    def __sub__(self, other): # self - other
-        return self + (-other)
+#if self has 2 child
+    if len(self.prev)==2:
+      child1,child2=self.prev
 
-    def __rsub__(self, other): # other - self
-        return other + (-self)
+#if this parent has already updated gradient before
+      if self in child1.parent:
+          # Subtract previous contribution from this parent before updating, ensures that same parent doesnt update gradient of child multiple times
+          if self in child1.grad_contributions:
+              child1.grad -= child1.grad_contributions[self]
 
-    def __rmul__(self, other): # other * self
-        return self * other
+#if this parent has already updated gradient before
+      if self in child2.parent:
+          # Subtract previous contribution from this parent before updating, ensures that same parent doesnt update gradient of child multiple times
+          if self in child2.grad_contributions:
+              child2.grad -= child2.grad_contributions[self]
 
-    def __truediv__(self, other): # self / other
-        return self * other**-1
+      child1.parent.add(self)
+      child2.parent.add(self)
 
-    def __rtruediv__(self, other): # other / self
-        return other * self**-1
+      temp1= child1.__add__(other)
+      temp2= child2.__add__(other)
 
-    def __repr__(self):
-        return f"Value(data={self.data}, grad={self.grad})"
+
+
+#if self has 1 child
+    elif len(self.prev)==1:
+      child1,=self.prev
+      if self in child1.parent:
+          # Subtract previous contribution from this parent before updating, ensures that same parent doesnt update gradient of child multiple times
+          if self in child1.grad_contributions:
+              child1.grad -= child1.grad_contributions[self]
+      child1.parent.add(self)
+
+    if self.operator == "+":
+      temp1=temp1.__add__(child2)
+      child1_new=child1.__add__(child2)
+      temp2=temp2.__add__(child1)
+      child2_new=child2.__add__(child1)
+
+    elif self.operator == "*":
+      temp1=temp1.__mul__(child2)
+      child1_new=child1.__mul__(child2)
+      temp2=temp2.__mul__(child1)
+      child2_new=child2.__mul__(child1)
+
+    elif pow_operator == '**' :
+      child1_der=pow_value * (child1.data**(pow_value-1)) * prev_der
+      child1.grad= child1.grad+child1_der
+      child1.grad_contributions[self] = child1_der  # Store new contribution
+      child1.backprop(Value(h),child1.grad,False)
+
+    elif self.operator == "tanh":
+      child1_der= 1-(self.data**2) * prev_der
+      child1.grad= child1.grad+child1_der
+      child1.grad_contributions[self] = child1_der  # Store new contribution
+      child1.backprop(Value(h),child1.grad,False)
+
+    elif self.operator == "exp":
+
+      child1_der= child1.exp().data * prev_der
+      child1.grad= child1.grad+child1_der
+      child1.grad_contributions[self] = child1_der  # Store new contribution
+      child1.backprop(Value(h),child1.grad,False)
+
+    elif self.operator == "ReLU":
+
+      child1_der= (self.data > 0) * prev_der
+      child1.grad= child1.grad+child1_der
+      child1.grad_contributions[self] = child1_der  # Store new contribution
+      child1.backprop(Value(h),child1.grad,False)
+
+    if self.operator in  ('*','+'):
+      child1_der= ((temp1.data  - child1_new.data) / h)*prev_der
+      child2_der= ((temp2.data  - child2_new.data) / h)*prev_der
+      child1.grad= child1.grad+child1_der
+      child2.grad= child2.grad+child2_der
+      child1.grad_contributions[self] = child1_der  # Store new contribution
+      child2.grad_contributions[self] = child2_der  # Store new contribution
+      child1.backprop(Value(h),child1.grad,False)
+      child2.backprop(Value(h),child2.grad,False)
