@@ -9,27 +9,28 @@ class Module:
 
     def parameters(self):
         return []
+
 class Neuron(Module):
   def __init__(self,nin, nonlin=True):
     self.w=[Value(random.uniform(-1,1)) for _ in range(nin)]
-    self.b=Value(random.uniform(-1,1))
-    # self.b = Value(0) ##only to replicate demo.ipynb code on github
-    # self.nonlin = nonlin
+    # self.b=Value(random.uniform(-1,1))
+    self.b = Value(0) ##only to replicate demo.ipynb code on github
+    self.nonlin = nonlin
 
   def __call__(self,x):
     result=sum((i*w for i,w in zip(x,self.w)),self.b)
-    return result
-    # return result.relu() if self.nonlin else result ##only to replicate demo.ipynb code on github
+    # return result
+    return result.relu() if self.nonlin else result ##only to replicate demo.ipynb code on github
 
   def parameters(self):
     return self.w+[self.b]
 
 class Layer(Module):
 
-  def __init__(self, nin, nout):
-    self.layer=[Neuron(nin) for i in range(nout)]
-  # def __init__(self, nin, nout, **kwargs):   ##only to replicate demo.ipynb code on github
-      # self.layer = [Neuron(nin, **kwargs) for _ in range(nout)]
+  # def __init__(self, nin, nout):
+  #   self.layer=[Neuron(nin) for i in range(nout)]
+  def __init__(self, nin, nout, **kwargs):   ##only to replicate demo.ipynb code on github
+      self.layer = [Neuron(nin, **kwargs) for _ in range(nout)]
 
   def __call__(self,x):
     out= [neuron(x) for neuron in self.layer]
@@ -42,8 +43,8 @@ class Layer(Module):
 class MLP(Module):
   def __init__(self, nin , nout):
     sz=[nin]+nout
-    self.layers=[Layer(sz[i],sz[i+1]) for i in range(len(nout))]
-    # self.layers = [Layer(sz[i], sz[i+1], nonlin=i!=len(nout)-1) for i in range(len(nout))] ##only to replicate demo.ipynb code on github
+    # self.layers=[Layer(sz[i],sz[i+1]) for i in range(len(nout))]
+    self.layers = [Layer(sz[i], sz[i+1], nonlin=i!=len(nout)-1) for i in range(len(nout))] ##only to replicate demo.ipynb code on github
 
   def __call__(self, x):
     for layer in self.layers:
