@@ -4,10 +4,10 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="micrograd",
+    name="micrograd_wahab",
     version="0.1.0",
-    author="Andrej Karpathy",
-    author_email="andrej.karpathy@gmail.com",
+    author="Wahab Aftab",
+    author_email="s.wahabaftab@gmail.com",
     description="A tiny scalar-valued autograd engine with a small PyTorch-like neural network library on top.",
     long_description=long_description,
     long_description_content_type="text/markdown",
