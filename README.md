@@ -8,7 +8,7 @@ A tiny Autograd engine (with a bite! :)). Implements backpropagation (reverse-mo
 ### Installation
 
 ```bash
-pip install micrograd_wahab
+pip install git+https://github.com/wahabaftab/micrograd.git
 ```
 
 ### Example usage
