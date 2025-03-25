@@ -50,6 +50,10 @@ For added convenience, the notebook `trace_graph.ipynb` produces graphviz visual
 from micrograd.engine import Value
 from micrograd import nn
 from micrograd.graph import visualize_graph
+import random
+
+random.seed(1337)
+
 n = nn.Neuron(2)
 x = [Value(1.0), Value(-2.0)]
 y = n(x)
