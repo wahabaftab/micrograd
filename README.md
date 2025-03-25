@@ -10,6 +10,7 @@ A tiny Autograd engine (with a bite! :)). Implements backpropagation (reverse-mo
 ```bash
 pip install git+https://github.com/wahabaftab/micrograd.git
 ```
+Notebook `install_demo.ipynb` contains sample code showcasing different functionalities.
 
 ### Example usage
 
