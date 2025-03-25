@@ -2,38 +2,14 @@
 # About This Repository
 This repository implements the same functionality as Andrej Karpathy's Micrograd, but with a different approach in the underlying code. Some key differences include:
 
-Backpropagation using recursion: Instead of using topological sorting, I implemented backprop using recursion. This approach felt more intuitive to me while coding, even though it might be slightly less efficient. It still provides a good and different way to implement backpropagation.
+**Backpropagation using recursion**: Instead of using topological sorting, I implemented backprop using recursion. This approach felt more intuitive to me while coding, even though it might be slightly less efficient. It still provides a good and different way to implement backpropagation.
 
-Gradient computation for + and * operations: Instead of the approach used by Andrej, I compute gradients using the base derivative formula by adding a small increment h and applying the fundamental definition of a derivative:
+**Gradient computation for + and * operations**: Instead of the approach used by Andrej, I compute gradients using the base derivative formula by adding a small increment h and applying the fundamental definition of a derivative:
 
-𝐿
-=
-lim
-⁡
-ℎ
-→
-0
-𝑓
-(
-𝑎
-+
-ℎ
-)
-−
-𝑓
-(
-𝑎
-)
-ℎ
-L= 
-h→0
-lim
-​
-  
-h
-f(a+h)−f(a)
-​
- 
+$$ L = \lim_{h \to 0} \frac{f(a+h) - f(a)}{h} $$
+
+**Graph visualization:** I used the same library and approach for visualizing the computation graph as Andrej, but with some tweaks that resulted in different visuals (i liked these more :) ).
+
 This offers an alternative perspective on automatic differentiation while still producing correct results.
 
 This project aims to showcase different ways to implement micrograd while maintaining clarity and correctness.
