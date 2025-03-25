@@ -9,7 +9,7 @@ def test_sanity_check():
     q = z.relu() + z * x
     j = (z * z).relu()
     y = j + q + q * x
-    y.backprop(Value(h),y.grad)
+    y.backprop()
     xmg, ymg = x, y
 
     x = torch.Tensor([-4.0]).double()
@@ -43,7 +43,7 @@ def test_more_ops():
     f = e**2
     g = f / 2.0
     g += 10.0 / f
-    g.backprop(Value(h),g.grad)
+    g.backprop()
     amg, bmg, gmg = a, b, g
 
     a = torch.Tensor([-4.0]).double()

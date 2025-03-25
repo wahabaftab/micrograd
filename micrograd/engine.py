@@ -1,3 +1,4 @@
+import math 
 class Value:
 
   def __init__(self, data, children=(), op="",label=''):
@@ -6,6 +7,7 @@ class Value:
     self.prev = (children)
     self.operator= op
     self.label=label
+    self.H=0.000001
     self.parent = set()  # Track which parents contributed to grad
     self.grad_contributions = {}  # Track gradients per parent
   def __repr__(self):
@@ -58,11 +60,13 @@ class Value:
 
       return out
 
-  def backprop(self, other,prev_der, first_recursion=True):
+  def backprop(self,prev_der=1, first_recursion=True):
     if first_recursion:
       self.grad=1
       prev_der=self.grad
-    h=other.data
+
+    h=self.H
+
     if not self.prev:
       return
     pow_operator=''
@@ -72,17 +76,17 @@ class Value:
       pow_value = int(self.operator[2:])  # The remaining part is the integer
 
 
-#if self has 2 child
+    #if self has 2 child
     if len(self.prev)==2:
       child1,child2=self.prev
 
-#if this parent has already updated gradient before
+    #if this parent has already updated gradient before
       if self in child1.parent:
           # Subtract previous contribution from this parent before updating, ensures that same parent doesnt update gradient of child multiple times
           if self in child1.grad_contributions:
               child1.grad -= child1.grad_contributions[self]
 
-#if this parent has already updated gradient before
+    #if this parent has already updated gradient before
       if self in child2.parent:
           # Subtract previous contribution from this parent before updating, ensures that same parent doesnt update gradient of child multiple times
           if self in child2.grad_contributions:
@@ -91,12 +95,12 @@ class Value:
       child1.parent.add(self)
       child2.parent.add(self)
 
-      temp1= child1.__add__(other)
-      temp2= child2.__add__(other)
+      temp1= child1.__add__(Value(h))
+      temp2= child2.__add__(Value(h))
 
 
 
-#if self has 1 child
+    #if self has 1 child
     elif len(self.prev)==1:
       child1,=self.prev
       if self in child1.parent:
@@ -121,27 +125,27 @@ class Value:
       child1_der=pow_value * (child1.data**(pow_value-1)) * prev_der
       child1.grad= child1.grad+child1_der
       child1.grad_contributions[self] = child1_der  # Store new contribution
-      child1.backprop(Value(h),child1.grad,False)
+      child1.backprop(child1.grad,False)
 
     elif self.operator == "tanh":
       child1_der= 1-(self.data**2) * prev_der
       child1.grad= child1.grad+child1_der
       child1.grad_contributions[self] = child1_der  # Store new contribution
-      child1.backprop(Value(h),child1.grad,False)
+      child1.backprop(child1.grad,False)
 
     elif self.operator == "exp":
 
       child1_der= child1.exp().data * prev_der
       child1.grad= child1.grad+child1_der
       child1.grad_contributions[self] = child1_der  # Store new contribution
-      child1.backprop(Value(h),child1.grad,False)
+      child1.backprop(child1.grad,False)
 
     elif self.operator == "ReLU":
 
       child1_der= (self.data > 0) * prev_der
       child1.grad= child1.grad+child1_der
       child1.grad_contributions[self] = child1_der  # Store new contribution
-      child1.backprop(Value(h),child1.grad,False)
+      child1.backprop(child1.grad,False)
 
     if self.operator in  ('*','+'):
       child1_der= ((temp1.data  - child1_new.data) / h)*prev_der
@@ -150,5 +154,5 @@ class Value:
       child2.grad= child2.grad+child2_der
       child1.grad_contributions[self] = child1_der  # Store new contribution
       child2.grad_contributions[self] = child2_der  # Store new contribution
-      child1.backprop(Value(h),child1.grad,False)
-      child2.backprop(Value(h),child2.grad,False)
+      child1.backprop(child1.grad,False)
+      child2.backprop(child2.grad,False)

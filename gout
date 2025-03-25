@@ -1,0 +1,42 @@
+digraph {
+	graph [rankdir=LR]
+	dpi=70
+	4602680752 [label=": 0.102443419482938 | grad:1.0" fillcolor=lightblue shape=record style=filled]
+	"4602680752_op" [label=ReLU fillcolor=orange shape=circle style=filled]
+	"4602680752_op" -> 4602680752
+	4602681904 [label=0.102443419482938 fillcolor=lightgray shape=record style=filled]
+	4602681904 -> "4602680752_op"
+	4602681904 [label=": 0.102443419482938 | grad:1.0" fillcolor=lightblue shape=record style=filled]
+	"4602681904_op" [label="+" fillcolor=orange shape=circle style=filled]
+	"4602681904_op" -> 4602681904
+	4602681808 [label=0.23550571390294128 fillcolor=lightgray shape=record style=filled]
+	4602681808 -> "4602681904_op"
+	4602681808 [label=": 0.23550571390294128 | grad:1.0" fillcolor=lightblue shape=record style=filled]
+	"4602681808_op" [label="+" fillcolor=orange shape=circle style=filled]
+	"4602681808_op" -> 4602681808
+	4602609488 [label=0 fillcolor=lightgray shape=record style=filled]
+	4602609488 -> "4602681808_op"
+	4602609488 [label=": 0 | grad:1.0" fillcolor=lightblue shape=record style=filled]
+	4602681280 [label=0.23550571390294128 fillcolor=lightgray shape=record style=filled]
+	4602681280 -> "4602681808_op"
+	4602681280 [label=": 0.23550571390294128 | grad:1.0" fillcolor=lightblue shape=record style=filled]
+	"4602681280_op" [label="*" fillcolor=orange shape=circle style=filled]
+	"4602681280_op" -> 4602681280
+	4602225552 [label=1.0 fillcolor=lightgray shape=record style=filled]
+	4602225552 -> "4602681280_op"
+	4602225552 [label=": 1.0 | grad:0.2355" fillcolor=lightblue shape=record style=filled]
+	4602609200 [label=0.23550571390294128 fillcolor=lightgray shape=record style=filled]
+	4602609200 -> "4602681280_op"
+	4602609200 [label=": 0.23550571390294128 | grad:1.0" fillcolor=lightblue shape=record style=filled]
+	4602681856 [label=-0.13306229442000328 fillcolor=lightgray shape=record style=filled]
+	4602681856 -> "4602681904_op"
+	4602681856 [label=": -0.13306229442000328 | grad:1.0" fillcolor=lightblue shape=record style=filled]
+	"4602681856_op" [label="*" fillcolor=orange shape=circle style=filled]
+	"4602681856_op" -> 4602681856
+	4602680512 [label=-2.0 fillcolor=lightgray shape=record style=filled]
+	4602680512 -> "4602681856_op"
+	4602680512 [label=": -2.0 | grad:0.0665" fillcolor=lightblue shape=record style=filled]
+	4602680704 [label=0.06653114721000164 fillcolor=lightgray shape=record style=filled]
+	4602680704 -> "4602681856_op"
+	4602680704 [label=": 0.06653114721000164 | grad:-2.0" fillcolor=lightblue shape=record style=filled]
+}
