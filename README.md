@@ -57,6 +57,7 @@ random.seed(1337)
 n = nn.Neuron(2)
 x = [Value(1.0), Value(-2.0)]
 y = n(x)
+y.backprop()
 graph = visualize_graph(y)
 display(graph)
 ```
