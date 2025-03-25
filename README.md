@@ -44,7 +44,7 @@ The notebook `demo.ipynb` provides a full demo of training an 2-layer neural net
 
 ### Tracing / visualization
 
-For added convenience, the notebook `trace_graph.ipynb` produces graphviz visualizations. I have added the code in graph.py which can be imported E.g. this one below is of a simple 2D neuron, and it shows both the data (top number in each node) and the gradient (bottom number in each node).
+For added convenience, the notebook `trace_graph.ipynb` produces graphviz visualizations. I have added the code in **`graph.py`** which can be imported e.g. this one below is of a simple 2D neuron, and it shows both the data (top number in each node) and the gradient (bottom number in each node).
 
 ```python
 from micrograd.engine import Value
