@@ -8,9 +8,10 @@ This repository implements the same functionality as Andrej Karpathy's Micrograd
 
 $$ L = \lim_{h \to 0} \frac{f(a+h) - f(a)}{h} $$
 
+This offers an alternative perspective on automatic differentiation while still producing correct results.
+
 **Graph visualization:** I used the same library and approach for visualizing the computation graph as Andrej, but with some tweaks that resulted in different visuals (i liked these more :) ).
 
-This offers an alternative perspective on automatic differentiation while still producing correct results.
 
 This project aims to showcase different ways to implement micrograd while maintaining clarity and correctness.
 
